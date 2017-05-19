@@ -32,5 +32,9 @@ module.exports = function (app, dao) {
         });
   }
 
+  Order.delete = function (id, t) {
+    return db.Order.destroy(util.addTrans(t, {where: { id: id}}))
+  }
+
   return Order;
 }
