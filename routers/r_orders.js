@@ -10,6 +10,7 @@ module.exports = function(app) {
 
   router.get('/:id', util.isAuthenticated, Orders.getById)
   router.post('/', util.isAuthenticated, Orders.create)
+  router.delete('/:id', util.isAuthenticated, Orders.delete)
 
   return router
 }
