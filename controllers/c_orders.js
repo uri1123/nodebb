@@ -36,6 +36,14 @@ module.exports = function (app) {
         .then(util.jsonResponse.bind(util, res))
         .catch(util.sendError.bind(util, res, 400, util.Error.ERR_BAD_REQUEST))
         .done();
-    }
+    },
+
+    delete: function (req, res) {
+      dao.Order.delete(req.params.id)
+        .then(util.jsonResponse.bind(util, res))
+        .catch(util.sendError.bind(util, res, 400, util.Error.ERR_BAD_REQUEST))
+        .done();
+    },
+
   }
 }
