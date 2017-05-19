@@ -8,7 +8,8 @@ var OrderItemView = Backbone.View.extend({
   },
 
   events: {
-    'click li': 'detail'
+    'click li': 'detail',
+    'click .glyphicon-trash': 'delete'
   },
 
   render: function () {
@@ -18,6 +19,12 @@ var OrderItemView = Backbone.View.extend({
 
   detail: function() {
     this.eventBus.trigger('view:order:detail', this.model.get('id'))
+  },
+
+  delete: function(event) {
+    // We don't want the click event to be fired at the <li> parent
+    event.stopPropagation()
+    this.eventBus.trigger('view:order:delete', this.model.get('id'))
   }
 
 });
