@@ -9,17 +9,21 @@ var OrderListView = Backbone.View.extend({
     this.eventBus = params.eventBus;
     this.template = _.template(tl_order)
 
+    this.items = []
+
     this.lastDetail = null
 
     this.localEventBus = _.extend({}, Backbone.Events)
 
-    this.listenTo(this.collection, 'add', this.appendOrder)
+    this.listenTo(this.collection, 'add', this.render)
+    this.listenTo(this.collection, 'remove', this.render)
 
     this.localEventBus.on('view:order:detail', this.showDetail.bind(this))
     this.localEventBus.on('view:orderDetail:hide', this.hideDetail.bind(this))
     this.localEventBus.on('view:orderCreate:hide', this.hideDetail.bind(this))
 
     this.listenTo(this.localEventBus, 'view:orderCreate:created', this.orderCreated)
+    this.listenTo(this.localEventBus, 'view:order:delete', this.deleteOrder)
   },
 
   events: {
@@ -27,14 +31,22 @@ var OrderListView = Backbone.View.extend({
   },
 
   render: function () {
+    this.removeItems()
     this.$el.html(this.template({orders: this.collection}))
     var $orderList = this.$el.find('.list-group')
     var localEventBus = this.localEventBus
+    var items = this.items
     this.collection.each(function(order) {
-      $orderList.append(new OrderItemView({model: order, eventBus: localEventBus}).render().el)
+      items.push(new OrderItemView({model: order, eventBus: localEventBus}).render())
+      $orderList.append(items[items.length-1].el)
     })
 
     return this
+  },
+
+  removeItems: function() {
+    _.invoke(this.items, 'remove')
+    this.items = []
   },
 
   clearDetail: function() {
@@ -74,10 +86,14 @@ var OrderListView = Backbone.View.extend({
     this.collection.add(order)
   },
 
-  appendOrder: function(order) {
-    var $orderList = this.$el.find('.list-group')
-    var localEventBus = this.localEventBus
-    $orderList.append(new OrderItemView({model: order, eventBus: localEventBus}).render().el)
+  deleteOrder: function(id) {
+    var order = this.collection.get(id)
+    var that = this
+    order.destroy({
+      success: function() {
+        that.collection.remove(id)
+      }
+    })
   }
 
 });
